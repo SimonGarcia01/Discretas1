@@ -11,6 +11,19 @@ public class Node<T extends Comparable<T>> {
         this.value = value;
     }
 
+    public int getBalancingFactor() {
+        int leftHeight = getHeight(left);
+        int rightHeight = getHeight(right);
+        return rightHeight - leftHeight;
+    }
+    
+    private int getHeight(Node<T> node) {
+        if (node == null) {
+            return 0; 
+        }
+        return 1 + Math.max(getHeight(node.getLeft()), getHeight(node.getRight()));
+    }
+
     public T getValue() {
         return value;
     }

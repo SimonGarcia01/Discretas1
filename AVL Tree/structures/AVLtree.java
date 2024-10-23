@@ -1,6 +1,8 @@
 package structures;
 
-public class BinarySearchTree<T extends Comparable<T>>{
+import exceptions.AVLException;
+
+public class AVLtree<T extends Comparable<T>>{
 
     private Node<T> root;
 
@@ -39,14 +41,14 @@ public class BinarySearchTree<T extends Comparable<T>>{
             //Base case 0.1 The tree is not empty
             try{
                 delete(null, root, value);
-            } catch(Exception e){
+            } catch(AVLException e){
                 e.printStackTrace();
             }
 
         }
     }
 
-    private void delete(Node<T> parent, Node<T> current, T value) throws Exception {
+    private void delete(Node<T> parent, Node<T> current, T value) throws AVLException {
         // The node exists in the tree
         if (current != null) {
             // Base case -> Finding the node
@@ -95,15 +97,20 @@ public class BinarySearchTree<T extends Comparable<T>>{
                 }
                 // Base Case 4: The node has both children nodes
                 else if (current.getLeft() != null && current.getRight() != null) {
-                    // Find the predecessor (maximum node in the left subtree)
-                    Node<T> predecessor = predecessor(current.getLeft());
-    
-                    // Replace current node's value with the predecessor's value
+
+                    Node<T> predecessor = predecessor(current);
+
+                    if (predecessor == null) {
+                        throw new AVLException("Predecessor not found for node: " + current.getValue());
+                    }
+
                     current.setValue(predecessor.getValue());
-    
-                    // Delete the predecessor node (which will be a leaf or have one child)
+
                     delete(current, current.getLeft(), predecessor.getValue());
                 }
+
+                rebalance(current);
+
             }
     
             // Recursive cases
@@ -117,8 +124,7 @@ public class BinarySearchTree<T extends Comparable<T>>{
                 delete(current, current.getRight(), value);
             }
         } else {
-            // Throw exception saying the node doesn't exist
-            throw new Exception("Node hasn't been found");
+            throw new AVLException("Node hasn't been found");
         }
     }
 
@@ -143,7 +149,7 @@ public class BinarySearchTree<T extends Comparable<T>>{
 
             //Base case: The node is found
             if(current.getValue().compareTo(value) == 0){
-               found = current;
+                found = current;
             }
             //Recursive case: Look to the left
             else if(current.getValue().compareTo(value) > 0){
@@ -160,47 +166,41 @@ public class BinarySearchTree<T extends Comparable<T>>{
         return found;
     }
 
-    public Node<T> predecessor(Node<T> node) {
-        if (node == null) return null;
+    public Node<T> predecessor(Node<T> current) {
+        if (current == null) return null;
     
-        // Case 1: The node has a left child
-        if (node.getLeft() != null) {
-            return maximum(node.getLeft());  // Maximum node in the left subtree
+        if (current.getLeft() != null) {
+            return maximum(current.getLeft());
         }
     
-        // Case 2: No left child, go up to find the predecessor
-        Node<T> parent = node.getParent();
-        while (parent != null && node == parent.getLeft()) {
-            node = parent;
+        Node<T> parent = current.getParent();
+        while (parent != null && current == parent.getLeft()) {
+            current = parent;
             parent = parent.getParent();
         }
     
         return parent;
-    }
+    }    
     
 
-    //Finding the minimum based on a node
     public Node<T> maximum(Node<T> current){
         if(current.getRight()==null){
             return current;
         } else {
-            return maximum(current.getLeft());
+            return maximum(current.getRight());
         }
     }
 
     public void add(T value) {
         Node<T> node = new Node<>(value);
-
-        //Base Case
         if(root == null){
             root = node;
         }
-        //Recursive case
         else {
-            //Auxiliary recursive method
             add(node, root);
         }
 
+        rebalance(node);
     }
 
     private void add(Node<T> node, Node<T> current) {
@@ -227,5 +227,107 @@ public class BinarySearchTree<T extends Comparable<T>>{
 
     public void setRoot(Node<T> root) {
         this.root = root;
+    }
+
+    public void leftRotate(Node<T> current) throws AVLException {
+        if (current.getRight() == null) {
+            throw new AVLException("Left rotation error: There was no right child.");
+        }
+    
+        Node<T> originalRightNode = current.getRight();
+        Node<T> middleSubTree = originalRightNode.getLeft();
+        Node<T> generalParent = current.getParent();
+    
+        //In case it's the root (doesn't have a parent)
+        if (current == root) {
+            root = originalRightNode;
+            originalRightNode.setParent(null); 
+        } else {
+            if (generalParent.getValue().compareTo(current.getValue()) < 0) {
+                generalParent.setRight(originalRightNode);
+            } else {
+                generalParent.setLeft(originalRightNode);
+            }
+            originalRightNode.setParent(generalParent);
+        }
+    
+        current.setRight(middleSubTree);
+        if (middleSubTree != null) {
+            middleSubTree.setParent(current);
+        }
+        
+        originalRightNode.setLeft(current); 
+        current.setParent(originalRightNode); 
+    }
+    
+    public void rightRotate(Node<T> current) throws AVLException {
+        if (current.getLeft() == null) {
+            throw new AVLException("Right rotation error: There was no left child.");
+        }
+    
+        Node<T> originalLeftNode = current.getLeft();
+        Node<T> middleSubTree = originalLeftNode.getRight();
+        Node<T> generalParent = current.getParent();
+    
+        //In case it's the root (it has no parent)
+        if (current == root) {
+            root = originalLeftNode; 
+            originalLeftNode.setParent(null); 
+        } else {
+            if (generalParent.getValue().compareTo(current.getValue()) < 0) {
+                generalParent.setRight(originalLeftNode);
+            } else {
+                generalParent.setLeft(originalLeftNode);
+            }
+            originalLeftNode.setParent(generalParent); 
+        }
+    
+        current.setLeft(middleSubTree); 
+        if (middleSubTree != null) {
+            middleSubTree.setParent(current);
+        }
+
+        originalLeftNode.setRight(current); 
+        current.setParent(originalLeftNode);  
+    }
+    
+    public void rotationManager(Node<T> pNode){
+        int pBalancingFactor = pNode.getBalancingFactor();
+        
+        try{
+            if(pBalancingFactor == 2){
+                Node<T> qNode = pNode.getRight();
+                int qBalancingFactor = qNode.getBalancingFactor();
+                
+                if(qBalancingFactor == 1 || qBalancingFactor == 0){
+                    leftRotate(pNode);
+                } else if(qBalancingFactor == -1){
+                    rightRotate(qNode);
+                    leftRotate(pNode);
+                }
+    
+            } else if (pBalancingFactor == -2){
+                Node<T> qNode = pNode.getLeft();
+                int qBalancingFactor = qNode.getBalancingFactor();
+                
+                if(qBalancingFactor == -1 || qBalancingFactor == 0){
+                    rightRotate(pNode);
+                } else if(qBalancingFactor == 1){
+                    leftRotate(qNode);
+                    rightRotate(pNode);
+                }
+            }
+        } catch(AVLException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void rebalance(Node<T> current){
+        Node<T>parent = current.getParent();
+        while (parent != null) {
+            rotationManager(parent);
+            current = parent;
+            parent = current.getParent();
+        }
     }
 }
