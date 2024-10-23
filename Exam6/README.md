@@ -1,0 +1,1 @@
+# Este ejercicio se soluciono con un AVL que utiliza predecesor para reemplazar el elemento que se elimina si tiene dos hijos. Por eso el escenario 4 es un poco distinto, pero si se balancea correctamente.
