@@ -1,51 +1,92 @@
 package structures;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.LinkedList;
+import java.util.Queue;
 
-public class ListGraph<T> implements IGraph<T>{
-    private Map<T, ListVertex<T>> verticies;
+
+public class ListGraph<K ,T> implements IGraph<K, T>{
+    private Map<K, ListVertex<T>> verticies;
 
     public ListGraph(){
         this.verticies = new HashMap<>();
     }
 
+    
+
     @Override
-    public void add(T item) {
-        verticies.put(item, new ListVertex<T>(item));
+    public void bFS(K key) {
+        for (ListVertex<T> vertex : verticies.values()) {
+            vertex.setColor(Color.WHITE);
+            vertex.setPredecesor(null);
+            vertex.setDistance(0);
+        }
+
+        Queue<ListVertex<T>> queue = new LinkedList<>();
+        
+        queue.add(verticies.get(key));
+        
+        while(!queue.isEmpty()){
+            ListVertex<T> current = queue.remove();
+            for(ListVertex<T> vertex : current.getEdges()){
+                if(vertex.getColor()==Color.WHITE){
+                    vertex.setColor(Color.GRAY);
+                    vertex.setDistance(current.getDistance()+1);
+                    vertex.setPredecesor(current);
+                    queue.add(vertex);
+                }
+                current.setColor(Color.BLACK);
+            }
+        }
+    }
+
+
+
+    @Override
+    public void add(K key, T item) {
+        verticies.put(key, new ListVertex<T>(item));
     }
 
     
     @Override
-    public void addConnection(T itemStart, T  itemEnd) {
+    public void addConnection(K keyStart, K  keyEnd) {
         //Only add the edge if it wasn't added before, so i checked the start and end
-        verticies.get(itemStart).addEdge(itemEnd);
-        verticies.get(itemEnd).addEdge(itemStart);
+        if(!verticies.get(keyStart).getEdges().contains(verticies.get(keyEnd))){
+            verticies.get(keyStart).addEdge(verticies.get(keyEnd));
+            verticies.get(keyEnd).addEdge(verticies.get(keyStart));
+        }
     }
 
     @Override
-    public void remove(T item) {
+    public void remove(K key) {
         //First it must be checked if the vertex exists
-        if(verticies.containsKey(item)){
-            verticies.remove(item);
+        if(verticies.containsKey(key)){
+            ListVertex<T> vertexremoved = verticies.get(key);
 
             //should i erase the reference in all the other edges???????
             for (ListVertex<T> vertex : verticies.values()) {
-                vertex.removeEdge(item);
+                vertex.removeEdge(vertexremoved);
             }
+
+            verticies.remove(key);
         }
     }
 
     @Override
-    public void removeConnection(T itemStart, T  itemEnd) {
+    public void removeConnection(K keyStart, K  keyEnd) {
         //First it must be checked that both verticies exist
-        if(verticies.containsKey(itemStart) && verticies.containsKey(itemEnd)){
-            //Then it must be checked if the edge exists in one of the edges at least
-            //?????????????? do i need to check?
-            if(verticies.get(itemStart).getEdges().contains(itemEnd)){
-                verticies.get(itemStart).removeEdge(itemEnd);
-                verticies.get(itemEnd).removeEdge(itemStart);
+        if(verticies.containsKey(keyStart) && verticies.containsKey(keyEnd)){
+            if(verticies.get(keyStart).getEdges().contains(verticies.get(keyEnd))){
+                verticies.get(keyStart).removeEdge(verticies.get(keyEnd));
+                verticies.get(keyEnd).removeEdge(verticies.get(keyStart));
             }
         }
     }
+
+    public Map<K, ListVertex<T>> getVerticies() {
+        return verticies;
+    }
+
+    
 
 }
