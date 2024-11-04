@@ -19,8 +19,8 @@ public class Vertex<V> {
         edges.add(edge);
     }
 
-    public void removeEdge(Edge<V> edge) {
-        edges.remove(edge);
+    public boolean removeEdge(Edge<V> edge) {
+        return edges.remove(edge);
     }
 
     public Edge<V> searchEdge(Vertex<V> endVertex){

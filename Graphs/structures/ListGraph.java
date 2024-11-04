@@ -7,8 +7,8 @@ import java.util.Queue;
 import exceptions.GraphException;
 
 
-public class ListGraph<K ,V> implements IGraph<K, V>{
-    private Map<K, Vertex<V>> verticies;
+public class ListGraph<K extends Comparable<K> ,V> implements IGraph<K, V>{
+    private Map<K, Vertex<V>> vertices;
 
     //Properties of the Graph
     private boolean simpleGraph;
@@ -24,34 +24,43 @@ public class ListGraph<K ,V> implements IGraph<K, V>{
         this.directed = directed;
         this.allowLoops = allowLoops;
 
-        this.verticies = new HashMap<>();
+        this.vertices = new HashMap<>();
     }
 
 
 
     @Override
-    public void bFS(K key) {
-        for (Vertex<V> vertex : verticies.values()) {
+    public void bFS(K key) throws GraphException{
+
+        Vertex<V> startVertex = vertices.get(key);
+
+        if(startVertex == null){
+            throw new GraphException("The entered key wasn't found");
+        }
+
+        for (Vertex<V> vertex : vertices.values()) {
             vertex.setColor(Color.WHITE);
             vertex.setPredecesor(null);
-            vertex.setDistance(0);
+            vertex.setDistance(Integer.MAX_VALUE);
         }
 
         Queue<Vertex<V>> queue = new LinkedList<>();
-        
-        queue.add(verticies.get(key));
+        startVertex.setDistance(0);
+        startVertex.setColor(Color.GRAY);
+        queue.add(startVertex);
         
         while(!queue.isEmpty()){
             Vertex<V> current = queue.remove();
-            for(Vertex<V> vertex : current.getEdges()){
-                if(vertex.getColor()==Color.WHITE){
-                    vertex.setColor(Color.GRAY);
-                    vertex.setDistance(current.getDistance()+1);
-                    vertex.setPredecesor(current);
-                    queue.add(vertex);
+            for(Edge<V> edge : current.getEdges()){
+                Vertex<V> adjVertex = edge.getEndVertex();
+                if(adjVertex.getColor()==Color.WHITE){
+                    adjVertex.setColor(Color.GRAY);
+                    adjVertex.setDistance(current.getDistance()+1);
+                    adjVertex.setPredecesor(current);
+                    queue.add(adjVertex);
                 }
-                current.setColor(Color.BLACK);
             }
+            current.setColor(Color.BLACK);
         }
     }
 
@@ -60,73 +69,114 @@ public class ListGraph<K ,V> implements IGraph<K, V>{
     @Override
     public void add(K key, V vertex) {
         //HashMap doesn't allow duplicated keys when adding a new vertex
-        verticies.put(key, new Vertex<V>(vertex));
+        vertices.put(key, new Vertex<V>(vertex));
     }
 
     
     @Override
-    public void addEdge(K keyStart, K  keyEnd, int weight) throws GraphException{
-        Vertex<V> startVertex = verticies.get(keyStart);
-        Vertex<V> endVertex = verticies.get(keyEnd);
+    public void addEdge(K keyStart, K keyEnd, int weight) throws GraphException {
+        Vertex<V> startVertex = vertices.get(keyStart);
+        Vertex<V> endVertex = vertices.get(keyEnd);
+    
+        if (startVertex == null || endVertex == null) {
+            throw new GraphException("The starting or ending vertex doesn't exist.");
+        }
+    
+        if (keyStart.compareTo(keyEnd) == 0 && !allowLoops) {
+            throw new GraphException("Loops are not allowed.");
+        }
+    
+        if (simpleGraph) {
+            //Must check first if there as an edge already to that vertex
+            boolean edgeExists = startVertex.searchEdge(endVertex) != null;
+            
+            if (!directed) {
+                //There shouldn't be an edge coming back either way
+                edgeExists = edgeExists || endVertex.searchEdge(startVertex) != null;
+            }
+            
+            if (!edgeExists) {
+                startVertex.addEdge(new Edge<V>(weight, endVertex));
+                if (!directed) {
+                    endVertex.addEdge(new Edge<V>(weight, startVertex));
+                }
+            }
 
-        if(startVertex == null || endVertex == null){
-            throw new GraphException("The starting or ending vertex don't exist.");
+        } else {
+            //If its multigraph then no need to check
+            startVertex.addEdge(new Edge<>(weight, endVertex));
+            if (!directed) {
+                endVertex.addEdge(new Edge<>(weight, startVertex));
+            }
+        }
+    }
+
+    @Override
+    public void removeVertex(K key) throws GraphException{
+        //First it must be checked if the vertex exists
+        if (!vertices.containsKey(key)) {
+            throw new GraphException("The vertex doesn't exist.");
+        }
+
+        //Must delete all edges that hold the vertex so it is completely removed
+        for (Map.Entry<K, Vertex<V>> entry : vertices.entrySet()) {
+            K otherKey = entry.getKey();
+            
+            if (!otherKey.equals(key)) {
+                try {
+                    //Here ill use my removeEdge since it will delete all edges (even if it's a multigraph)
+                    removeEdge(otherKey, key);
+                    if (!directed) {
+                        //Remove the edges in the other direction (includes multigraph)
+                        removeEdge(key, otherKey);
+                    }
+                } catch (GraphException e) {
+                    // Ignore exceptions where edges don’t exist
+                }
+            }
+        }
+        vertices.remove(key);
+    }
+
+    @Override
+    public void removeEdge(K keyStart, K keyEnd) throws GraphException {
+        // First it must check both vertices exist
+        Vertex<V> startVertex = vertices.get(keyStart);
+        Vertex<V> endVertex = vertices.get(keyEnd);
+        
+        if (startVertex == null || endVertex == null) {
+            throw new GraphException("The starting or ending vertex doesn't exist.");
         }
         
-        if(simpleGraph){
-            Edge<V> searchedEdge = startVertex.searchEdge(endVertex);
-            if(searchedEdge == null){
-                startVertex.addEdge(new Edge(weight, endVertex));
+        //Now check if the edfge even exists
+        Edge<V> startEdge = startVertex.searchEdge(endVertex);
+        Edge<V> endEdge = directed ? null : endVertex.searchEdge(startVertex);
+    
+        if (startEdge == null && (directed || endEdge == null)) {
+            throw new GraphException("The edge doesn't exist.");
+        }
+        
+        if (simpleGraph) {
+            //only remove the edge once in simplegraphs
+            startVertex.removeEdge(startEdge);
+            if (!directed && endEdge != null) {
+                endVertex.removeEdge(endEdge);
             }
         } else {
-
-        }
-
-        if(directed){
-
-        } else {
-
-        }
-
-        if(allowLoops){
-
-        } else {
-
-        }
-        if(!verticies.get(keyStart).getEdges().contains(verticies.get(keyEnd))){
-            verticies.get(keyStart).addEdge(verticies.get(keyEnd));
-            verticies.get(keyEnd).addEdge(verticies.get(keyStart));
-        }
-    }
-
-    @Override
-    public void remove(K key) {
-        //First it must be checked if the vertex exists
-        if(verticies.containsKey(key)){
-            Vertex<V> vertexremoved = verticies.get(key);
-
-            //should i erase the reference in all the other edges???????
-            for (Vertex<V> vertex : verticies.values()) {
-                vertex.removeEdge(vertexremoved);
+            //In multigraphs all the ocurrences must be removed
+            while ((startEdge = startVertex.searchEdge(endVertex)) != null) {
+                startVertex.removeEdge(startEdge);
             }
-
-            verticies.remove(key);
-        }
-    }
-
-    @Override
-    public void removeEdge(K keyStart, K  keyEnd) {
-        //First it must be checked that both verticies exist
-        if(verticies.containsKey(keyStart) && verticies.containsKey(keyEnd)){
-            if(verticies.get(keyStart).getEdges().contains(verticies.get(keyEnd))){
-                verticies.get(keyStart).removeEdge(verticies.get(keyEnd));
-                verticies.get(keyEnd).removeEdge(verticies.get(keyStart));
+            if (!directed) {
+                while ((endEdge = endVertex.searchEdge(startVertex)) != null) {
+                    endVertex.removeEdge(endEdge);
+                }
             }
         }
     }
+    
 
-    public Map<K, Vertex<V>> getVerticies() {
-        return verticies;
+    public Map<K, Vertex<V>> getVertices() {
+        return vertices;
     }
-
 }

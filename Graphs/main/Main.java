@@ -3,12 +3,12 @@ package main;
 import structures.IGraph;
 import structures.ListGraph;
 // import structures.MatrixGraph;
-
+import exceptions.GraphException;
 import model.Animal;
 
 public class Main{
     public static void main(String[] args){
-        IGraph<String, Animal> listGraph = new ListGraph<>();
+        IGraph<String, Animal> listGraph = new ListGraph<>(true, true, true);
 
         Animal animal1 = new Animal("Santiago", "Cat");
         listGraph.add(animal1.getName(), animal1);
@@ -24,38 +24,43 @@ public class Main{
 
         Animal animal5 = new Animal("DD", "S4");
         listGraph.add(animal5.getName(), animal5);
+        
+        try{
+            listGraph.addEdge("Santiago", "AA",1);
+            listGraph.addEdge("AA", "BB", 1);
+            listGraph.addEdge("AA", "CC", 1);
+            listGraph.addEdge("CC", "DD", 1);
+            listGraph.addEdge("Santiago", "BB", 1);
+    
+            listGraph.bFS("Santiago");
+        }catch(GraphException e){
+            System.out.println(e.getMessage());
+        }
 
-        listGraph.addConnection("Santiago", "AA");
-        listGraph.addConnection("AA", "BB");
-        listGraph.addConnection("AA", "CC");
-        listGraph.addConnection("CC", "DD");
-        listGraph.addConnection("Santiago", "BB");
-
-        listGraph.bFS("Santiago");
 
         System.out.println("Santiago");
-        System.out.println(listGraph.getVerticies().get("Santiago").getDistance());
-        System.out.println(listGraph.getVerticies().get("Santiago").getColor());
+        System.out.println(listGraph.getVertices().get("Santiago").getDistance());
+        System.out.println(listGraph.getVertices().get("Santiago").getColor());
         System.out.println("null");
 
         System.out.println("AA");
-        System.out.println(listGraph.getVerticies().get("AA").getDistance());
-        System.out.println(listGraph.getVerticies().get("AA").getColor());
-        System.out.println(listGraph.getVerticies().get("AA").getPredecesor().getValue().getName());
+        System.out.println(listGraph.getVertices().get("AA").getDistance());
+        System.out.println(listGraph.getVertices().get("AA").getColor());
+        System.out.println(listGraph.getVertices().get("AA").getPredecesor().getValue().getName());
 
         System.out.println("BB");
-        System.out.println(listGraph.getVerticies().get("BB").getDistance());
-        System.out.println(listGraph.getVerticies().get("BB").getColor());
-        System.out.println(listGraph.getVerticies().get("BB").getPredecesor().getValue().getName());
+        System.out.println(listGraph.getVertices().get("BB").getDistance());
+        System.out.println(listGraph.getVertices().get("BB").getColor());
+        System.out.println(listGraph.getVertices().get("BB").getPredecesor().getValue().getName());
         
         System.out.println("CC");
-        System.out.println(listGraph.getVerticies().get("CC").getDistance());
-        System.out.println(listGraph.getVerticies().get("CC").getColor());
-        System.out.println(listGraph.getVerticies().get("CC").getPredecesor().getValue().getName());
+        System.out.println(listGraph.getVertices().get("CC").getDistance());
+        System.out.println(listGraph.getVertices().get("CC").getColor());
+        System.out.println(listGraph.getVertices().get("CC").getPredecesor().getValue().getName());
 
         System.out.println("DD");
-        System.out.println(listGraph.getVerticies().get("DD").getDistance());
-        System.out.println(listGraph.getVerticies().get("DD").getColor());
-        System.out.println(listGraph.getVerticies().get("DD").getPredecesor().getValue().getName());
+        System.out.println(listGraph.getVertices().get("DD").getDistance());
+        System.out.println(listGraph.getVertices().get("DD").getColor());
+        System.out.println(listGraph.getVertices().get("DD").getPredecesor().getValue().getName());
     }
 }
