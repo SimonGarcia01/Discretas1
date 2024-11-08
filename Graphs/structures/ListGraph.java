@@ -1,7 +1,10 @@
 package structures;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import exceptions.GraphException;
@@ -175,6 +178,26 @@ public class ListGraph<K extends Comparable<K> ,V> implements IGraph<K, V>{
         }
     }
     
+    public List<V> getShortestPath(K startKey, K endKey) throws GraphException {
+    Vertex<V> startVertex = vertices.get(startKey);
+    Vertex<V> endVertex = vertices.get(endKey);
+
+    if (startVertex == null || endVertex == null) {
+        throw new GraphException("One or both vertices not found.");
+    }
+
+    List<V> path = new ArrayList<>();
+    for (Vertex<V> at = endVertex; at != null; at = at.getPredecesor()) {
+        path.add(at.getValue());
+    }
+    Collections.reverse(path);
+
+    if (path.get(0).equals(startVertex.getValue())) {
+        return path;  // Path from start to end
+    } else {
+        throw new GraphException("No path found between these vertices.");
+    }
+}
 
     public Map<K, Vertex<V>> getVertices() {
         return vertices;

@@ -62,5 +62,11 @@ public class Main{
         System.out.println(listGraph.getVertices().get("DD").getDistance());
         System.out.println(listGraph.getVertices().get("DD").getColor());
         System.out.println(listGraph.getVertices().get("DD").getPredecesor().getValue().getName());
+
+        try{
+            System.out.println(listGraph.getShortestPath("Santiago", "CC"));
+        }catch(GraphException e){
+            System.out.println(e.getMessage());
+        }
     }
 }
