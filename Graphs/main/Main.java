@@ -1,14 +1,14 @@
 package main;
 
-import structures.IGraph;
-import structures.ListGraph;
+import structures.IGraphKV;
+import structures.ListGraphKV;
 // import structures.MatrixGraph;
 import exceptions.GraphException;
 import model.Animal;
 
 public class Main{
     public static void main(String[] args){
-        IGraph<String, Animal> listGraph = new ListGraph<>(true, true, true);
+        IGraphKV<String, Animal> listGraph = new ListGraphKV<>(true, true, true);
 
         Animal animal1 = new Animal("Santiago", "Cat");
         listGraph.add(animal1.getName(), animal1);
