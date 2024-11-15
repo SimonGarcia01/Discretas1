@@ -3,9 +3,10 @@ package structures;
 public class Edge <V>{
 
     private int weight;
+    private Vertex<V> startVertex;
     private Vertex<V> endVertex;
 
-    public Edge(int weight, Vertex<V> endVertex){
+    public Edge(int weight, Vertex<V> startVertex, Vertex<V> endVertex){
         this.weight = weight;
         this.endVertex = endVertex;
     }
@@ -26,5 +27,12 @@ public class Edge <V>{
         this.endVertex = endVertex;
     }
 
+    public Vertex<V> getStartVertex() {
+        return startVertex;
+    }
+
+    public void setStartVertex(Vertex<V> startVertex) {
+        this.startVertex = startVertex;
+    }
     
 }

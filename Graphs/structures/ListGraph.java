@@ -9,6 +9,7 @@ import exceptions.GraphException;
 
 public class ListGraph<V> implements IGraph<V> {
     private List<Vertex<V>> vertices;
+    private List<Edge<V>> edges;
 
     // Properties of the Graph
     private boolean simpleGraph;
@@ -20,6 +21,7 @@ public class ListGraph<V> implements IGraph<V> {
         this.directed = directed;
         this.allowLoops = allowLoops;
         this.vertices = new ArrayList<>();
+        this.edges = new ArrayList<>();
     }
 
     @Override
@@ -91,21 +93,29 @@ public class ListGraph<V> implements IGraph<V> {
             //Must check if there is an edge with that vertex
             boolean edgeExists = startVertex.searchEdge(endVertex) != null;
             if (!directed) {
-                //There shouldn't bne an edge coming back either way
+                //There shouldn't be an edge coming back either way
                 edgeExists = edgeExists || endVertex.searchEdge(startVertex) != null;
             }
             
             if (!edgeExists) {
-                startVertex.addEdge(new Edge<V>(weight, endVertex));
+                Edge<V> startEdge = new Edge<V>(weight, startVertex, endVertex);
+                startVertex.addEdge(startEdge);
+                edges.add(startEdge);
                 if (!directed) {
-                    endVertex.addEdge(new Edge<V>(weight, startVertex));
+                    Edge<V> endEdge = new Edge<V>(weight, endVertex, startVertex);
+                    endVertex.addEdge(endEdge);
+                    edges.add(endEdge);
                 }
             }
         } else {
             //If it's a multigraph there's no need to check
-            startVertex.addEdge(new Edge<V>(weight, endVertex));
+            Edge<V> startEdge = new Edge<V>(weight, startVertex, endVertex);
+            startVertex.addEdge(startEdge);
+            edges.add(startEdge);
             if (!directed) {
-                endVertex.addEdge(new Edge<V>(weight, startVertex));
+                Edge<V> endEdge = new Edge<V>(weight, endVertex, startVertex);
+                endVertex.addEdge(endEdge);
+                edges.add(endEdge);
             }
         }
     }
@@ -125,6 +135,14 @@ public class ListGraph<V> implements IGraph<V> {
         }
 
         vertices.remove(vertex);
+
+        for(Edge<V> edge: edges){
+            if(edge.getStartVertex().equals(vertex) && edge.getEndVertex().equals(vertex)){
+                edges.remove(edge);
+            }
+        }
+
+        System.out.println(edges);
     }
 
     @Override
@@ -148,23 +166,23 @@ public class ListGraph<V> implements IGraph<V> {
         if (simpleGraph) {
             //only need to remove one edge once
             startVertex.removeEdge(startEdge);
+            edges.remove(startEdge);
             if (!directed && endEdge != null) {
                 endVertex.removeEdge(endEdge);
+                edges.remove(endEdge);
             }
         } else {
             //In multigraphs i must remove all ocurrences of the same vertex
             while ((startEdge = startVertex.searchEdge(endVertex)) != null) {
                 startVertex.removeEdge(startEdge);
+                edges.remove(startEdge);
             }
             if (!directed) {
                 while ((endEdge = endVertex.searchEdge(startVertex)) != null) {
                     endVertex.removeEdge(endEdge);
+                    edges.remove(startEdge);
                 }
             }
         }
-    }
-
-    public List<Vertex<V>> getVertices() {
-        return vertices;
     }
 }

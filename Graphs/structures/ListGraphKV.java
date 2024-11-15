@@ -93,17 +93,17 @@ public class ListGraphKV<K extends Comparable<K> ,V> implements IGraphKV<K, V>{
             }
             
             if (!edgeExists) {
-                startVertex.addEdge(new Edge<V>(weight, endVertex));
+                startVertex.addEdge(new Edge<V>(weight,startVertex, endVertex));
                 if (!directed) {
-                    endVertex.addEdge(new Edge<V>(weight, startVertex));
+                    endVertex.addEdge(new Edge<V>(weight, endVertex, startVertex));
                 }
             }
 
         } else {
             //If its multigraph then no need to check
-            startVertex.addEdge(new Edge<V>(weight, endVertex));
+            startVertex.addEdge(new Edge<V>(weight, startVertex, endVertex));
             if (!directed) {
-                endVertex.addEdge(new Edge<V>(weight, startVertex));
+                endVertex.addEdge(new Edge<V>(weight, endVertex, startVertex));
             }
         }
     }
