@@ -3,7 +3,7 @@ package structures;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Vertex<V> {
+public class Vertex<V> implements Comparable<Vertex<V>>{
     private V value;
     private int distance;
     private Color color;
@@ -32,6 +32,16 @@ public class Vertex<V> {
         }
         
         return null;
+    }
+
+    @Override
+    public String toString(){
+        return value.toString();
+    }
+
+    @Override
+    public int compareTo(Vertex<V> o) {
+        return distance - o.getDistance();
     }
 
     public V getValue() {

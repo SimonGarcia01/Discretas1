@@ -1,6 +1,7 @@
 package structures;
 
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.ArrayList;
 import java.util.Queue;
 import java.util.LinkedList;
@@ -22,16 +23,6 @@ public class ListGraph<V> implements IGraph<V> {
         this.allowLoops = allowLoops;
         this.vertices = new ArrayList<>();
         this.edges = new ArrayList<>();
-    }
-
-    @Override
-    public Vertex<V> searchVertexValue(V value) {
-        for (Vertex<V> vertex : vertices) {
-            if (vertex.getValue().equals(value)) {
-                return vertex;
-            }
-        }
-        return null;
     }
 
     @Override
@@ -66,6 +57,41 @@ public class ListGraph<V> implements IGraph<V> {
             }
             current.setColor(Color.BLACK);
         }
+    }
+
+    @Override
+    public void prim() throws GraphException{
+        
+        if(vertices.size() == 0){
+            throw new GraphException("Prim can't be done on an empty graph.");
+        }
+
+        for (Vertex<V> vertex : vertices) {
+            vertex.setColor(Color.WHITE);
+            vertex.setPredecesor(null);
+            vertex.setDistance(Integer.MAX_VALUE);
+        }
+
+        
+        
+        PriorityQueue<Vertex<V>> queue = new PriorityQueue<>();
+        queue.addAll(vertices);
+    
+    }
+
+    @Override
+    public void kruskal(){
+
+    }
+
+    @Override
+    public Vertex<V> searchVertexValue(V value) {
+        for (Vertex<V> vertex : vertices) {
+            if (vertex.getValue().equals(value)) {
+                return vertex;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -129,20 +155,24 @@ public class ListGraph<V> implements IGraph<V> {
             throw new GraphException("The vertex does not exist.");
         }
 
-        for (Vertex<V> otherVertex : vertices) {
+        int vertexPosition = vertices.indexOf(vertex);
+
+        for(int n = 0; n < vertices.size() && n!= vertexPosition; n++) {
             //Here ill use my removeEdge since it will delete all edges (even if it's a multigraph)
-            removeEdge(otherVertex.getValue(), value);
+            removeEdge(vertices.get(n).getValue(), value);
         }
 
-        vertices.remove(vertex);
+        List<Edge<V>> toRemove = new ArrayList<>();
 
-        for(Edge<V> edge: edges){
-            if(edge.getStartVertex().equals(vertex) && edge.getEndVertex().equals(vertex)){
-                edges.remove(edge);
+        for (Edge<V> edge : edges) {
+            if (edge.getStartVertex().equals(vertex) || edge.getEndVertex().equals(vertex)) {
+                toRemove.add(edge);
             }
         }
+        //Doing it like this to avoid the ConcurrentModificationException :c
+        edges.removeAll(toRemove);
 
-        System.out.println(edges);
+        vertices.remove(vertex);
     }
 
     @Override

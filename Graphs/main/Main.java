@@ -6,7 +6,7 @@ import model.Animal;
 
 public class Main{
     public static void main(String[] args){
-        IGraph<String> listGraph = new ListGraph<>(true, false, true);
+        IGraph<String> listGraph = new ListGraph<>(false, false, true);
 
         listGraph.add("a");
         listGraph.add("b");
@@ -17,6 +17,7 @@ public class Main{
             listGraph.addEdge("a","b",1);
             listGraph.addEdge("b","c",1);
             listGraph.addEdge("b","c",2);
+            listGraph.addEdge("b","c",3);
             listGraph.addEdge("c","d",1);
             listGraph.removeVertex("b");
         }catch(GraphException e){

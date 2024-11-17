@@ -8,6 +8,7 @@ public class Edge <V>{
 
     public Edge(int weight, Vertex<V> startVertex, Vertex<V> endVertex){
         this.weight = weight;
+        this.startVertex = startVertex;
         this.endVertex = endVertex;
     }
 
@@ -33,6 +34,11 @@ public class Edge <V>{
 
     public void setStartVertex(Vertex<V> startVertex) {
         this.startVertex = startVertex;
+    }
+
+    @Override
+    public String toString(){
+        return String.format("Start: %s - End: %s - Weight: %d", startVertex, endVertex, weight);
     }
     
 }
