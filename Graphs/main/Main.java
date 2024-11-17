@@ -27,7 +27,6 @@ public class Main{
             listGraph.addEdge("De", "Sf", 900);
             System.out.println(listGraph.kruskal());
             listGraph.prim();
-            System.out.println(listGraph.printTree());
         }catch(GraphException e){
             System.out.println(e.getMessage());
         }

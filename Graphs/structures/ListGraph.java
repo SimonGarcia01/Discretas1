@@ -3,7 +3,6 @@ package structures;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Queue;
 import java.util.LinkedList;
 
@@ -136,51 +135,6 @@ public class ListGraph<V> implements IGraph<V> {
         }
 
         return mst;
-    }
-
-    @Override
-    public String printTree() {
-        // Find the root (vertex with no predecessor)
-        Vertex<V> root = findRoot();
-    
-        // If no root is found, return an empty tree representation
-        if (root == null) {
-            return "[ ]";
-        }
-    
-        // Start building the tree representation from the root
-        return buildTree(root);
-    }
-    
-    // Helper method to find the root vertex
-    private Vertex<V> findRoot() {
-        for (Vertex<V> vertex : vertices) { // Assuming `vertices` is the list of all vertices in the graph
-            if (vertex.getPredecessor() == null) {
-                return vertex; // A vertex with no predecessor is considered the root
-            }
-        }
-        return null; // No root found (this could indicate a disconnected or malformed graph)
-    }
-    
-    // Recursive helper method to build the tree representation
-    private String buildTree(Vertex<V> current) {
-        StringBuilder message = new StringBuilder("[ ");
-    
-        // Add the current vertex's value
-        message.append(current.getValue()).append(" ");
-    
-        // Iterate over the edges of the current vertex
-        for (Edge<V> edge : current.getEdges()) {
-            // Check if the current vertex is the predecessor of the end vertex
-            if (edge.getEndVertex().getPredecessor() == current) {
-                // Recursively build the subtree for the end vertex
-                message.append(buildTree(edge.getEndVertex()));
-            }
-        }
-    
-        // Close the subtree representation
-        message.append("] ");
-        return message.toString();
     }
 
     @Override

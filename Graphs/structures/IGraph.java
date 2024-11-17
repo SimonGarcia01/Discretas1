@@ -13,5 +13,4 @@ public interface IGraph <V>{
     public abstract void bFS(V rootValue) throws GraphException;
     public abstract void prim() throws GraphException;
     public abstract List<Edge<V>> kruskal() throws GraphException;
-    public abstract String printTree();
 }
