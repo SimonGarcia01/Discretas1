@@ -7,7 +7,7 @@ public class Vertex<V> implements Comparable<Vertex<V>>{
     private V value;
     private int distance;
     private Color color;
-    private Vertex<V> predecesor;
+    private Vertex<V> predecessor;
     private List<Edge<V>> edges;
 
     public Vertex(V value){
@@ -68,12 +68,12 @@ public class Vertex<V> implements Comparable<Vertex<V>>{
         this.color = color;
     }
 
-    public Vertex<V> getPredecesor() {
-        return predecesor;
+    public Vertex<V> getPredecessor() {
+        return predecessor;
     }
 
-    public void setPredecesor(Vertex<V> predecesor) {
-        this.predecesor = predecesor;
+    public void setPredecessor(Vertex<V> predecesor) {
+        this.predecessor = predecesor;
     }
 
     public List<Edge<V>> getEdges() {

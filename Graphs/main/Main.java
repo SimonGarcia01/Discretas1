@@ -6,20 +6,28 @@ import model.Animal;
 
 public class Main{
     public static void main(String[] args){
-        IGraph<String> listGraph = new ListGraph<>(false, false, true);
+        IGraph<String> listGraph = new ListGraph<>(true, false, false);
 
-        listGraph.add("a");
-        listGraph.add("b");
-        listGraph.add("c");
-        listGraph.add("d");
+        listGraph.add("At");
+        listGraph.add("Ch");
+        listGraph.add("Ny");
+        listGraph.add("De");
+        listGraph.add("Sf");
         
         try{
-            listGraph.addEdge("a","b",1);
-            listGraph.addEdge("b","c",1);
-            listGraph.addEdge("b","c",2);
-            listGraph.addEdge("b","c",3);
-            listGraph.addEdge("c","d",1);
-            listGraph.removeVertex("b");
+            listGraph.addEdge("At", "Ny", 800);
+            listGraph.addEdge("At", "Ch", 700);
+            listGraph.addEdge("At", "De", 1400);
+            listGraph.addEdge("At", "Sf", 2200);
+            listGraph.addEdge("Ny", "De", 1600);
+            listGraph.addEdge("Ny", "Ch", 1000);
+            listGraph.addEdge("Ny", "Sf", 2000);
+            listGraph.addEdge("Ch", "De", 1300);
+            listGraph.addEdge("Ch", "Sf", 1200);
+            listGraph.addEdge("De", "Sf", 900);
+            System.out.println(listGraph.kruskal());
+            listGraph.prim();
+            System.out.println(listGraph.printTree());
         }catch(GraphException e){
             System.out.println(e.getMessage());
         }

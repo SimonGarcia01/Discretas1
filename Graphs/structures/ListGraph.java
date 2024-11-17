@@ -3,6 +3,7 @@ package structures;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Queue;
 import java.util.LinkedList;
 
@@ -35,7 +36,7 @@ public class ListGraph<V> implements IGraph<V> {
 
         for (Vertex<V> vertex : vertices) {
             vertex.setColor(Color.WHITE);
-            vertex.setPredecesor(null);
+            vertex.setPredecessor(null);
             vertex.setDistance(Integer.MAX_VALUE);
         }
 
@@ -51,7 +52,7 @@ public class ListGraph<V> implements IGraph<V> {
                 if (adjVertex.getColor() == Color.WHITE) {
                     adjVertex.setColor(Color.GRAY);
                     adjVertex.setDistance(current.getDistance() + 1);
-                    adjVertex.setPredecesor(current);
+                    adjVertex.setPredecessor(current);
                     queue.add(adjVertex);
                 }
             }
@@ -62,26 +63,124 @@ public class ListGraph<V> implements IGraph<V> {
     @Override
     public void prim() throws GraphException{
         
-        if(vertices.size() == 0){
+        if (directed) {
+            throw new GraphException("Prim's algorithm cannot be applied to directed graphs.");
+        }
+
+        if(vertices.isEmpty()){
             throw new GraphException("Prim can't be done on an empty graph.");
         }
 
         for (Vertex<V> vertex : vertices) {
             vertex.setColor(Color.WHITE);
-            vertex.setPredecesor(null);
+            vertex.setPredecessor(null);
             vertex.setDistance(Integer.MAX_VALUE);
         }
 
-        
+        Vertex<V> startVertex = vertices.get(0);
+
+        startVertex.setDistance(0);
         
         PriorityQueue<Vertex<V>> queue = new PriorityQueue<>();
         queue.addAll(vertices);
-    
+        
+        while(!queue.isEmpty()){
+
+            Vertex<V> start = queue.poll();
+
+            for(Edge<V> endEdge : start.getEdges()){
+
+                Vertex<V> endVertex = endEdge.getEndVertex();
+
+                if(endVertex.getColor() == Color.WHITE && endEdge.getWeight() < endVertex.getDistance()){
+                    endVertex.setDistance(endEdge.getWeight());
+                    endVertex.setPredecessor(start);
+                    queue.remove(endVertex);
+                    queue.add(endVertex);
+                }
+            }
+            start.setColor(Color.BLACK);
+        }
     }
 
     @Override
-    public void kruskal(){
+    public List<Edge<V>>  kruskal() throws GraphException {
+        if (directed) {
+            throw new GraphException("Kruskal's algorithm cannot be applied to directed graphs.");
+        }
+        
+        if(vertices.isEmpty()){
+            throw new GraphException("Kruskal can't be done on an empty graph.");
+        }
 
+        DisjointSet<Vertex<V>> disjointSet = new DisjointSet<>();
+        for (Vertex<V> vertex : vertices) {
+            disjointSet.makeSet(vertex);
+        }
+
+        PriorityQueue<Edge<V>> queue = new PriorityQueue<>();
+        queue.addAll(edges);
+
+        List<Edge<V>> mst = new ArrayList<>();
+
+        while (!queue.isEmpty()) {
+            Edge<V> edge = queue.poll(); 
+
+            Vertex<V> u = edge.getStartVertex();
+            Vertex<V> v = edge.getEndVertex();
+
+            if (!disjointSet.find(u).equals(disjointSet.find(v))) {
+                mst.add(edge);
+                disjointSet.union(u, v);
+            }
+        }
+
+        return mst;
+    }
+
+    @Override
+    public String printTree() {
+        // Find the root (vertex with no predecessor)
+        Vertex<V> root = findRoot();
+    
+        // If no root is found, return an empty tree representation
+        if (root == null) {
+            return "[ ]";
+        }
+    
+        // Start building the tree representation from the root
+        return buildTree(root);
+    }
+    
+    // Helper method to find the root vertex
+    private Vertex<V> findRoot() {
+        for (Vertex<V> vertex : vertices) { // Assuming `vertices` is the list of all vertices in the graph
+            if (vertex.getPredecessor() == null) {
+                return vertex; // A vertex with no predecessor is considered the root
+            }
+        }
+        return null; // No root found (this could indicate a disconnected or malformed graph)
+    }
+    
+    // Recursive helper method to build the tree representation
+    private String buildTree(Vertex<V> current) {
+        StringBuilder message = new StringBuilder("[ ");
+    
+        // Add the current vertex's value
+        message.append(current.getValue()).append(" ");
+    
+        // Iterate over the edges of the current vertex
+        for (Edge<V> edge : current.getEdges()) {
+            // Check if the current vertex is the predecessor of the end vertex
+            if (edge.getEndVertex().getPredecessor() == current) {
+                // Recursively build the subtree for the end vertex
+                message.append(buildTree(edge.getEndVertex()));
+            }
+        }
+    
+        // Close the subtree representation
+        message.append("] ");
+        return message.toString();
     }
 
     @Override

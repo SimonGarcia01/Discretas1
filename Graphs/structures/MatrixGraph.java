@@ -90,7 +90,7 @@ public class MatrixGraph<V> implements IGraph<V> {
 
         for (Vertex<V> vertex : vertices) {
             vertex.setColor(Color.WHITE);
-            vertex.setPredecesor(null);
+            vertex.setPredecessor(null);
             vertex.setDistance(Integer.MAX_VALUE);
         }
 
@@ -106,7 +106,7 @@ public class MatrixGraph<V> implements IGraph<V> {
                 if (adjVertex.getColor() == Color.WHITE) {
                     adjVertex.setColor(Color.GRAY);
                     adjVertex.setDistance(current.getDistance() + 1);
-                    adjVertex.setPredecesor(current);
+                    adjVertex.setPredecessor(current);
                     queue.add(adjVertex);
                 }
             }

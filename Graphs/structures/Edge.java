@@ -1,6 +1,6 @@
 package structures;
 
-public class Edge <V>{
+public class Edge <V> implements Comparable<Edge<V>>{
 
     private int weight;
     private Vertex<V> startVertex;
@@ -11,6 +11,15 @@ public class Edge <V>{
         this.startVertex = startVertex;
         this.endVertex = endVertex;
     }
+
+    
+
+    @Override
+    public int compareTo(Edge<V> o) {
+        return weight - o.getWeight();
+    }
+
+
 
     public int getWeight() {
         return weight;
