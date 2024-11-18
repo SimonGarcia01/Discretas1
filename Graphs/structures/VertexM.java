@@ -4,7 +4,7 @@ public class VertexM<V> implements Comparable<VertexM<V>> {
     private V value;
     private int distance;
     private Color color;
-    private Vertex<V> predecessor;
+    private VertexM<V> predecessor;
 
     public VertexM(V value){
         super();
@@ -18,7 +18,11 @@ public class VertexM<V> implements Comparable<VertexM<V>> {
 
     @Override
     public String toString(){
-        return value.toString();
+        return String.format("Value: %s - Distance: %d - Color: %s - Predecessor: %s", value.toString(), distance, color, predecessor.getValue().toString());
+    }
+
+    public String toStringNoPred(){
+        return String.format("Value: %s - Distance: %d - Color: %s - Predecessor:  null", value.toString(), distance, color);
     }
 
     public V getValue() {
@@ -45,11 +49,11 @@ public class VertexM<V> implements Comparable<VertexM<V>> {
         this.color = color;
     }
 
-    public Vertex<V> getPredecessor() {
+    public VertexM<V> getPredecessor() {
         return predecessor;
     }
 
-    public void setPredecessor(Vertex<V> predecessor) {
+    public void setPredecessor(VertexM<V> predecessor) {
         this.predecessor = predecessor;
     }
 
