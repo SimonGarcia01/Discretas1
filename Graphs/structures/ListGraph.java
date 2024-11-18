@@ -102,43 +102,7 @@ public class ListGraph<V> implements IGraph<V> {
         }
     }
 
-    @Override
-    public List<Edge<V>>  kruskal() throws GraphException {
-        if (directed) {
-            throw new GraphException("Kruskal's algorithm cannot be applied to directed graphs.");
-        }
-        
-        if(vertices.isEmpty()){
-            throw new GraphException("Kruskal can't be done on an empty graph.");
-        }
-
-        DisjointSet<Vertex<V>> disjointSet = new DisjointSet<>();
-        for (Vertex<V> vertex : vertices) {
-            disjointSet.makeSet(vertex);
-        }
-
-        PriorityQueue<Edge<V>> queue = new PriorityQueue<>();
-        queue.addAll(edges);
-
-        List<Edge<V>> mst = new ArrayList<>();
-
-        while (!queue.isEmpty()) {
-            Edge<V> edge = queue.poll(); 
-
-            Vertex<V> u = edge.getStartVertex();
-            Vertex<V> v = edge.getEndVertex();
-
-            if (!disjointSet.find(u).equals(disjointSet.find(v))) {
-                mst.add(edge);
-                disjointSet.union(u, v);
-            }
-        }
-
-        return mst;
-    }
-
-    @Override
-    public Vertex<V> searchVertexValue(V value) {
+    private Vertex<V> searchVertexValue(V value) {
         for (Vertex<V> vertex : vertices) {
             if (vertex.getValue().equals(value)) {
                 return vertex;

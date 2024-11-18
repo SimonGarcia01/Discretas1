@@ -10,36 +10,53 @@ import exceptions.GraphException;
 public class MatrixGraph<V> implements IGraph<V> {
 
     //Graph properties
-    private List<Vertex<V>> vertices;
-
-    private int[][] edges;
-
+    private List<VertexM<V>> vertices;
     private final int SIZE;
+    private List<EdgeM<V>>[][] edges;
     private boolean simpleGraph;
     private boolean directed;
     private boolean allowLoops;
 
-    public MatrixGraph(boolean simpleGraph, boolean directed, boolean allowLoops, int size){
+    private Queue<Integer> availablePositions = new LinkedList<>();
+    
+    @SuppressWarnings("unchecked") //recommended in stack overflow
+    public MatrixGraph(int size, boolean simpleGraph, boolean directed, boolean allowLoops) throws GraphException{
+        if (size <= 0) {
+            throw new GraphException("Size must be positive.");
+        }
+
+        this.vertices = new ArrayList<>();
+        this.SIZE = size;
+        edges = (List<EdgeM<V>>[][]) new List[SIZE][SIZE];
         this.simpleGraph = simpleGraph;
         this.directed = directed;
         this.allowLoops = allowLoops;
-        this.SIZE = size;
-        vertices = new ArrayList<>();
-        edges = new int[size][size];
+
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                edges[i][j] = new ArrayList<>();
+            }
+        }
     }
 
     @Override
     public void add(V value) {
         //Make sure the value is unique
         if (searchVertexValue(value) == null) {
-            vertices.add(new Vertex<>(value));
+            //take up the position of a removed vertex if there is one
+            if (!availablePositions.isEmpty()) {
+                int position = availablePositions.poll();
+                vertices.set(position, new VertexM<>(value));
+            } else if(vertices.size() < SIZE){
+                vertices.add(new VertexM<>(value));
+            }
         }
     }
 
     @Override
     public void addEdge(V startValue, V endValue, int weight) throws GraphException {
-        Vertex<V> startVertex = searchVertexValue(startValue);
-        Vertex<V> endVertex = searchVertexValue(endValue);
+        VertexM<V> startVertex = searchVertexValue(startValue);
+        VertexM<V> endVertex = searchVertexValue(endValue);
 
         if (startVertex == null || endVertex == null) {
             throw new GraphException("One or both vertices do not exist in the graph.");
@@ -49,152 +66,83 @@ public class MatrixGraph<V> implements IGraph<V> {
             throw new GraphException("Loops are not allowed.");
         }
 
-        int intStart = vertices.indexOf(startVertex);
-        int intEnd = vertices.indexOf(endVertex);
+        
+        int intStartVertex = vertices.indexOf(startVertex);
+        int intEndVertex = vertices.indexOf(endVertex);
 
-        if (simpleGraph && edges[intStart][intEnd] == 0) {
-            //Must check if there is an edge with that vertex
-            boolean edgeExists = startVertex.searchEdge(endVertex) != null;
+        if (simpleGraph) {
+            boolean edgeExists = !edges[intStartVertex][intEndVertex].isEmpty();
 
-            if (!directed && edges[intEnd][intStart] == 0) {
-                //There shouldn't bne an edge coming back either way
-                edgeExists = edgeExists || endVertex.searchEdge(startVertex) != null;
-            }
-            
-            if (!edgeExists) {
-                startVertex.addEdge(new Edge<V>(weight, endVertex));
-                edges[intStart][intEnd] += 1;
-                if (!directed) {
-                    endVertex.addEdge(new Edge<V>(weight, startVertex));
-                    edges[intEnd][intStart] += 1;
-                }
-            }
-        } else {
-            //If it's a multigraph there's no need to check
-            startVertex.addEdge(new Edge<V>(weight, endVertex));
-            edges[intStart][intEnd] += 1;
             if (!directed) {
-                endVertex.addEdge(new Edge<V>(weight, startVertex));
-                edges[intEnd][intStart] += 1;
+                edgeExists = edgeExists || !edges[intEndVertex][intStartVertex].isEmpty();
+            }
+
+            if (edgeExists) {
+                throw new GraphException("An edge already exists between the specified vertices.");
             }
         }
+
+        // If its a multigraph none of the preconditions from before must be checked
+        addEdgeInternal(intStartVertex, intEndVertex, weight, startVertex, endVertex);
+
+        if (!directed) {
+            addEdgeInternal(intEndVertex, intStartVertex, weight, endVertex, startVertex);
+        }
+    }
+
+    //Made this just to reduce the repetitive lines
+    private void addEdgeInternal(int from, int to, int weight, VertexM<V> startVertex, VertexM<V> endVertex) {
+        EdgeM<V> edge = new EdgeM<>(weight, startVertex, endVertex);
+        edges[from][to].add(edge);
     }
 
     @Override
     public void bFS(V rootValue) throws GraphException {
-        Vertex<V> startVertex = searchVertexValue(rootValue);
+        // TODO Auto-generated method stub
+        
+    }
 
-        if (startVertex == null) {
-            throw new GraphException("The vertex with the specified value was not found.");
-        }
-
-        for (Vertex<V> vertex : vertices) {
-            vertex.setColor(Color.WHITE);
-            vertex.setPredecessor(null);
-            vertex.setDistance(Integer.MAX_VALUE);
-        }
-
-        Queue<Vertex<V>> queue = new LinkedList<>();
-        startVertex.setDistance(0);
-        startVertex.setColor(Color.GRAY);
-        queue.add(startVertex);
-
-        while (!queue.isEmpty()) {
-            Vertex<V> current = queue.remove();
-            for (Edge<V> edge : current.getEdges()) {
-                Vertex<V> adjVertex = edge.getEndVertex();
-                if (adjVertex.getColor() == Color.WHITE) {
-                    adjVertex.setColor(Color.GRAY);
-                    adjVertex.setDistance(current.getDistance() + 1);
-                    adjVertex.setPredecessor(current);
-                    queue.add(adjVertex);
-                }
-            }
-            current.setColor(Color.BLACK);
-        }
+    @Override
+    public void prim() throws GraphException {
+        // TODO Auto-generated method stub
+        
     }
 
     @Override
     public void removeEdge(V startValue, V endValue) throws GraphException {
-        //FIirst must check both vertices even exist
-        Vertex<V> startVertex = searchVertexValue(startValue);
-        Vertex<V> endVertex = searchVertexValue(endValue);
-
-        if (startVertex == null || endVertex == null) {
-            throw new GraphException("One or both vertices do not exist in the graph.");
-        }
-
-        int intStart = vertices.indexOf(startValue);
-        int intEnd = vertices.indexOf(endValue);
-
-        //now check if the edges even exists
-        if(edges[intStart][intEnd]== 0){
-            throw new GraphException("The edge does not exist.");
-        }
-
-        Edge<V> startEdge = startVertex.searchEdge(endVertex);
-        Edge<V> endEdge = directed ?  null : endVertex.searchEdge(startVertex);
-
-        if (simpleGraph) {
-            //only need to remove one edge once
-            startVertex.removeEdge(startEdge);
-            if (!directed && endEdge != null) {
-                endVertex.removeEdge(endEdge);
-            }
-        } else {
-            //In multigraphs i must remove all ocurrences of the same vertex
-            while ((startEdge = startVertex.searchEdge(endVertex)) != null) {
-                startVertex.removeEdge(startEdge);
-            }
-            if (!directed) {
-                while ((endEdge = endVertex.searchEdge(startVertex)) != null) {
-                    endVertex.removeEdge(endEdge);
-                }
-            }
-        }
+        // TODO Auto-generated method stub
+        
     }
 
     @Override
     public void removeVertex(V value) throws GraphException {
-        Vertex<V> vertex = searchVertexValue(value);
+        VertexM<V> vertex = searchVertexValue(value);
 
-        //First check if the vertex exists
         if (vertex == null) {
             throw new GraphException("The vertex does not exist.");
         }
-
-        for (Vertex<V> otherVertex : vertices) {
-            //Here ill use my removeEdge since it will delete all edges (even if it's a multigraph)
-            removeEdge(otherVertex.getValue(), value);
-        }
-
+    
         int index = vertices.indexOf(vertex);
-        
-        // Reset that row to 0's since all edges will dissapear
-        for (int i = 0; i < edges[index].length; i++) {
-            edges[index][i] = 0;
-        }
+        //Place a removed vertex so it can be reused after and the matrix doesn't misalign with the list
+        vertices.set(index, new RemovedVertex<V>());
+        availablePositions.add(index);
 
-        // Clear the column representing edges coming from others to this vertex
-        for (int i = 0; i < edges.length; i++) {
-            edges[i][index] = 0;
+        for (int i = 0; i < SIZE; i++) {
+            edges[index][i].clear();
+            edges[i][index].clear();
         }
-
-        vertices.remove(vertex);
     }
 
-    @Override
-    public Vertex<V> searchVertexValue(V value) {
-        for (Vertex<V> vertex : vertices) {
+    private VertexM<V> searchVertexValue(V value) {
+        for (VertexM<V> vertex : vertices) {
+            // Ignore RemovedVertex placeholders
+            if (vertex instanceof RemovedVertex) {
+                continue;
+            }
             if (vertex.getValue().equals(value)) {
                 return vertex;
             }
         }
         return null;
     }
-
-    public List<Vertex<V>> getVertices() {
-        return vertices;
-    }
-    
 }

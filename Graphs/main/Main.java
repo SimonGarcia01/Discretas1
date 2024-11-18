@@ -2,7 +2,6 @@ package main;
 
 import structures.*;
 import exceptions.GraphException;
-import model.Animal;
 
 public class Main{
     public static void main(String[] args){
@@ -25,7 +24,6 @@ public class Main{
             listGraph.addEdge("Ch", "De", 1300);
             listGraph.addEdge("Ch", "Sf", 1200);
             listGraph.addEdge("De", "Sf", 900);
-            System.out.println(listGraph.kruskal());
             listGraph.prim();
         }catch(GraphException e){
             System.out.println(e.getMessage());
