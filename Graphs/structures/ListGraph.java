@@ -139,6 +139,27 @@ public class ListGraph<V> implements IGraph<V> {
         }
         return mst;
     }
+
+    @Override
+    public void dijkstra(V rootValue) throws GraphException{
+        Vertex<V> startVertex = searchVertexValue(rootValue);
+
+        if (startVertex == null) {
+            throw new GraphException("The vertex with the specified value was not found.");
+        }
+
+        for (Vertex<V> vertex : vertices) {
+            vertex.setColor(Color.WHITE);
+            vertex.setPredecessor(null);
+            vertex.setDistance(Integer.MAX_VALUE);
+        }
+
+        startVertex.setDistance(0);
+
+        PriorityQueue<Vertex<V>> queue = new PriorityQueue<>();
+        queue.addAll(vertices);
+    }
+
     @Override
     public String printTree() {
         // Find the root (vertex with no predecessor)

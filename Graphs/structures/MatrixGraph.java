@@ -136,6 +136,12 @@ public class MatrixGraph<V> implements IGraph<V> {
     }
 
     @Override
+    public void dijkstra(V rootValue) throws GraphException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
     public void prim() throws GraphException {
         // TODO Auto-generated method stub
 
