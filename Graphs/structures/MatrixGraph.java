@@ -203,4 +203,16 @@ public class MatrixGraph<V> implements IGraph<V> {
     public List<VertexM<V>> getVertices(){
         return vertices;
     }
+
+    @Override
+    public List<Edge<V>> kruskal() throws GraphException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String printTree() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
