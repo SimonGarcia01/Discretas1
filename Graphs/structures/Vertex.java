@@ -36,7 +36,11 @@ public class Vertex<V> implements Comparable<Vertex<V>>{
 
     @Override
     public String toString(){
-        return value.toString();
+        return String.format("Value: %s - Distance: %d - Color: %s - Predecessor: %s", value.toString(), distance, color, predecessor.getValue().toString());
+    }
+
+    public String toStringNoPred(){
+        return String.format("Value: %s - Distance: %d - Color: %s - Predecessor:  null", value.toString(), distance, color);
     }
 
     @Override

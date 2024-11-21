@@ -9,8 +9,8 @@ import java.util.LinkedList;
 import exceptions.GraphException;
 
 public class ListGraph<V> implements IGraph<V> {
-    private List<Vertex<V>> vertices;
-    private List<Edge<V>> edges;
+    private final List<Vertex<V>> vertices;
+    private final List<Edge<V>> edges;
 
     // Properties of the Graph
     private final boolean simpleGraph;
@@ -149,7 +149,6 @@ public class ListGraph<V> implements IGraph<V> {
         }
 
         for (Vertex<V> vertex : vertices) {
-            vertex.setColor(Color.WHITE);
             vertex.setPredecessor(null);
             vertex.setDistance(Integer.MAX_VALUE);
         }
@@ -157,7 +156,24 @@ public class ListGraph<V> implements IGraph<V> {
         startVertex.setDistance(0);
 
         PriorityQueue<Vertex<V>> queue = new PriorityQueue<>();
-        queue.addAll(vertices);
+        queue.add(startVertex);
+
+        while(!queue.isEmpty()){
+            Vertex<V> current = queue.poll();
+            for(Edge<V> edge : current.getEdges()){
+                Vertex<V> neighbor = edge.getEndVertex();
+                int alt = current.getDistance() + edge.getWeight();
+                if(alt < neighbor.getDistance()){
+
+                    neighbor.setDistance(alt);
+                    neighbor.setPredecessor(current);
+
+                    //Re add the vertex but with the new priority
+                    queue.remove(neighbor);
+                    queue.add(neighbor);
+                }
+            }
+        }
     }
 
     @Override
@@ -322,5 +338,9 @@ public class ListGraph<V> implements IGraph<V> {
                 }
             }
         }
+    }
+
+    public List<Vertex<V>> getVertices() {
+        return vertices;
     }
 }
