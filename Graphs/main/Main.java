@@ -52,7 +52,7 @@ public class Main{
             // matrixGraph.addEdge("Ch", "Sf", 1200);
             // matrixGraph.addEdge("De", "Sf", 900);
             // matrixGraph.bFS("At");
-            matrixGraph.dijkstra("A");
+            matrixGraph.antiDijkstra("A");
             List<VertexM<String>> vertices = matrixGraph.getVertices();
             System.out.println(vertices.get(0).toStringNoPred());
             for(int n = 1; n < vertices.size(); n++){
@@ -62,54 +62,54 @@ public class Main{
             System.out.println(e.getMessage());
         }
 
-        // ListGraph<String> listGraph = new ListGraph<>(true, false, false);
+        ListGraph<String> listGraph = new ListGraph<>(true, false, false);
 
-        // String[] nodes = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
-        // for (String node : nodes) {
-        //     listGraph.add(node);
-        // }
+        String[] nodes1 = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
+        for (String node : nodes1) {
+            listGraph.add(node);
+        }
 
-        // // listGraph.add("At");
-        // // listGraph.add("Ch");
-        // // listGraph.add("Ny");
-        // // listGraph.add("De");
-        // // listGraph.add("Sf");
+        // listGraph.add("At");
+        // listGraph.add("Ch");
+        // listGraph.add("Ny");
+        // listGraph.add("De");
+        // listGraph.add("Sf");
         
-        // try{
-        //     listGraph.addEdge("A", "B", 10);
-        //     listGraph.addEdge("A", "D", 30);
-        //     listGraph.addEdge("A", "C", 20);
-        //     listGraph.addEdge("B", "E", 40);
-        //     listGraph.addEdge("B", "F", 50);
-        //     listGraph.addEdge("C", "G", 60);
-        //     listGraph.addEdge("D", "H", 70);
-        //     listGraph.addEdge("E", "I", 80);
-        //     listGraph.addEdge("F", "J", 90);
-        //     listGraph.addEdge("G", "I", 100);
-        //     listGraph.addEdge("H", "J", 110);
-        //     listGraph.addEdge("I", "J", 120);
-        //     listGraph.addEdge("F", "G", 130);
-        //     listGraph.addEdge("C", "F", 140);
-        //     listGraph.addEdge("D", "G", 150);
-        //     // listGraph.addEdge("At", "Ny", 800);
-        //     // listGraph.addEdge("At", "Ch", 700);
-        //     // listGraph.addEdge("At", "De", 1400);
-        //     // listGraph.addEdge("At", "Sf", 2200);
-        //     // listGraph.addEdge("Ny", "De", 1600);
-        //     // listGraph.addEdge("Ny", "Ch", 1000);
-        //     // listGraph.addEdge("Ny", "Sf", 2000);
-        //     // listGraph.addEdge("Ch", "De", 1300);
-        //     // listGraph.addEdge("Ch", "Sf", 1200);
-        //     // listGraph.addEdge("De", "Sf", 900);
-        //     // listGraph.bFS("At");
-        //     listGraph.dijkstra("A");
-        //     List<Vertex<String>> vertices = listGraph.getVertices();
-        //     System.out.println(vertices.get(0).toStringNoPred());
-        //     for(int n = 1; n < vertices.size(); n++){
-        //         System.out.println(vertices.get(n));
-        //     }
-        // }catch(GraphException e){
-        //     System.out.println(e.getMessage());
-        // }
+        try{
+            listGraph.addEdge("A", "B", 10);
+            listGraph.addEdge("A", "D", 30);
+            listGraph.addEdge("A", "C", 20);
+            listGraph.addEdge("B", "E", 40);
+            listGraph.addEdge("B", "F", 50);
+            listGraph.addEdge("C", "G", 60);
+            listGraph.addEdge("D", "H", 70);
+            listGraph.addEdge("E", "I", 80);
+            listGraph.addEdge("F", "J", 90);
+            listGraph.addEdge("G", "I", 100);
+            listGraph.addEdge("H", "J", 110);
+            listGraph.addEdge("I", "J", 120);
+            listGraph.addEdge("F", "G", 130);
+            listGraph.addEdge("C", "F", 140);
+            listGraph.addEdge("D", "G", 150);
+            // listGraph.addEdge("At", "Ny", 800);
+            // listGraph.addEdge("At", "Ch", 700);
+            // listGraph.addEdge("At", "De", 1400);
+            // listGraph.addEdge("At", "Sf", 2200);
+            // listGraph.addEdge("Ny", "De", 1600);
+            // listGraph.addEdge("Ny", "Ch", 1000);
+            // listGraph.addEdge("Ny", "Sf", 2000);
+            // listGraph.addEdge("Ch", "De", 1300);
+            // listGraph.addEdge("Ch", "Sf", 1200);
+            // listGraph.addEdge("De", "Sf", 900);
+            // listGraph.bFS("At");
+            listGraph.antiDijkstra("A");
+            List<Vertex<String>> vertices = listGraph.getVertices();
+            System.out.println(vertices.get(0).toStringNoPred());
+            for(int n = 1; n < vertices.size(); n++){
+                System.out.println(vertices.get(n));
+            }
+        }catch(GraphException e){
+            System.out.println(e.getMessage());
+        }
     }
 }

@@ -14,4 +14,5 @@ public interface IGraph <V>{
     public abstract List<Edge<V>> kruskal() throws GraphException;
     public abstract String printTree();
     public abstract void dijkstra(V rootValue) throws GraphException;
+    public abstract void antiDijkstra(V rootValue) throws GraphException;
 }

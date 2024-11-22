@@ -3,6 +3,7 @@ package structures;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Queue;
 import java.util.LinkedList;
 
@@ -173,6 +174,50 @@ public class ListGraph<V> implements IGraph<V> {
                     queue.add(neighbor);
                 }
             }
+        }
+    }
+    
+    @Override //This is a mix between dijkstra and bfs trying to find longest path
+    public void antiDijkstra(V rootValue) throws GraphException {
+        Vertex<V> startVertex = searchVertexValue(rootValue);
+    
+        if (startVertex == null) {
+            throw new GraphException("The vertex with the specified value was not found.");
+        }
+    
+
+        for (Vertex<V> vertex : vertices) {
+            vertex.setColor(Color.WHITE); 
+            vertex.setPredecessor(null);
+            vertex.setDistance(Integer.MIN_VALUE); 
+        }
+    
+        startVertex.setDistance(0);
+        startVertex.setColor(Color.GRAY); 
+    
+        PriorityQueue<Vertex<V>> queue = new PriorityQueue<>(Comparator.comparingInt(Vertex<V>::getDistance).reversed());
+        queue.add(startVertex);
+    
+        while (!queue.isEmpty()) {
+            Vertex<V> current = queue.poll();
+    
+            for (Edge<V> edge : current.getEdges()) {
+                Vertex<V> neighbor = edge.getEndVertex();
+    
+                if (neighbor.getColor() == Color.WHITE) { // Prevent inifinite loop using colors
+                    int alt = current.getDistance() + edge.getWeight();
+    
+                    if (alt > neighbor.getDistance()) {
+                        neighbor.setDistance(alt);
+                        neighbor.setPredecessor(current);
+                    }
+    
+                    neighbor.setColor(Color.GRAY);
+                    queue.add(neighbor);
+                }
+            }
+    
+            current.setColor(Color.BLACK);
         }
     }
 

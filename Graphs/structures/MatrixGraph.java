@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
 
 import exceptions.GraphException;
@@ -179,6 +180,59 @@ public class MatrixGraph<V> implements IGraph<V> {
             }
         }
     }
+
+@Override //Doing similar things as list trying to mix bfs and dijkstra
+public void antiDijkstra(V rootValue) throws GraphException {
+    VertexM<V> startVertex = searchVertexValue(rootValue);
+
+    if (startVertex == null) {
+        throw new GraphException("The vertex with the specified value was not found.");
+    }
+
+    for (VertexM<V> vertex : vertices) {
+        vertex.setColor(Color.WHITE); 
+        vertex.setPredecessor(null);
+        vertex.setDistance(Integer.MIN_VALUE);
+    }
+
+    startVertex.setDistance(0);
+    startVertex.setColor(Color.GRAY); 
+
+    PriorityQueue<VertexM<V>> queue = new PriorityQueue<>(Comparator.comparingInt(VertexM<V>::getDistance).reversed());
+    queue.add(startVertex);
+
+    while (!queue.isEmpty()) {
+        VertexM<V> current = queue.poll();
+        int currentIndex = vertices.indexOf(current);
+
+        for (int neighborIndex = 0; neighborIndex < SIZE; neighborIndex++) {
+            List<EdgeM<V>> edgeList = edges[currentIndex][neighborIndex];
+
+            // Only process if there are edges to this neighbor
+            if (!edgeList.isEmpty()) {
+                VertexM<V> neighborVertex = vertices.get(neighborIndex);
+
+                // Only consider white  vertices
+                if (neighborVertex.getColor() == Color.WHITE) {
+                    for (EdgeM<V> edge : edgeList) {
+                        int alt = current.getDistance() + edge.getWeight();
+
+                        if (alt > neighborVertex.getDistance()) {
+                            neighborVertex.setDistance(alt);
+                            neighborVertex.setPredecessor(current);
+                        }
+                    }
+
+                    neighborVertex.setColor(Color.GRAY);
+                    queue.add(neighborVertex);
+                }
+            }
+        }
+
+        current.setColor(Color.BLACK);
+    }
+}
+
 
     @Override
     public void prim() throws GraphException {
