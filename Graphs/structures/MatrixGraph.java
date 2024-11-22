@@ -1,6 +1,7 @@
 package structures;
 
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -119,7 +120,7 @@ public class MatrixGraph<V> implements IGraph<V> {
             VertexM<V> current = queue.remove();
             int currentIndex = vertices.indexOf(current);
             for(int neighborIndex = 0; neighborIndex < SIZE; neighborIndex++){
-                //Check if there is atleast one edge
+                //Check if there is at least one edge
                 if(!edges[currentIndex][neighborIndex].isEmpty()){
                     VertexM<V> neighborVertex = vertices.get(neighborIndex);
 
@@ -137,8 +138,46 @@ public class MatrixGraph<V> implements IGraph<V> {
 
     @Override
     public void dijkstra(V rootValue) throws GraphException {
-        // TODO Auto-generated method stub
+        VertexM<V> startVertex = searchVertexValue(rootValue);
+
+        if (startVertex == null) {
+            throw new GraphException("The vertex with the specified value was not found.");
+        }
         
+        for (VertexM<V> vertex : vertices) {
+            vertex.setPredecessor(null);
+            vertex.setDistance(Integer.MAX_VALUE);
+        }
+
+        startVertex.setDistance(0);
+
+        PriorityQueue<VertexM<V>> queue = new PriorityQueue<>();
+        queue.add(startVertex);
+
+        while(!queue.isEmpty()){
+            VertexM<V> current = queue.poll();
+            int currentIndex = vertices.indexOf(current);
+
+            for(int neighborIndex = 0; neighborIndex < SIZE; neighborIndex++){
+                List<EdgeM<V>> edgeList = edges[currentIndex][neighborIndex];
+                //Only do the process where the edge list is not empty
+                if(!edgeList.isEmpty()){
+                    VertexM<V> neighborVertex = vertices.get(neighborIndex);
+                    //Now I must go through all the edges to use the shortest one (if its multi graph)
+                    for(EdgeM<V> edge : edgeList){
+                        int alt = current.getDistance() + edge.getWeight();
+                        if(alt < neighborVertex.getDistance()){
+                            neighborVertex.setDistance(alt);
+                            neighborVertex.setPredecessor(current);
+
+                            //Now re add with the newest distance
+                            queue.remove(neighborVertex);
+                            queue.add(neighborVertex);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override
